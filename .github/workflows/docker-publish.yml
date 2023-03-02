@@ -7,7 +7,7 @@ name: Docker
 
 on:
   schedule:
-    - cron: '19 12 * * *'
+    - cron: '20 11 * * *'
   push:
     branches: [ "master" ]
     # Publish semver tags as releases.
@@ -75,8 +75,9 @@ jobs:
         uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
         with:
           context: .
-          tags: devilskey/portfolio:latest, devilskey/portfolio:v0.1.${{ github.run_number }}
-          labels: devilskey/portfolio:v0.1.${{ github.run_number }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -93,4 +94,3 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
-
